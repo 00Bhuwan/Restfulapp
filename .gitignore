@@ -1,2 +1,4 @@
 .env
 note.txt
+docker-compose.debug.yml
+Dockerfile
