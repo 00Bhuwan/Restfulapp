@@ -1,2 +1,3 @@
 flask
-debugpy
+flask-smorest
+python-dotenv
