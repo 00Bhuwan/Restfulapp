@@ -1,43 +1,42 @@
-import uuid
-from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from db import stores
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-blb = Blueprint('store', __name__, description='Operations on store')
+from db import db
+from models import StoreModel
+from schemas import StoreSchema
 
-@blb.route('/store/<string:store_id>')
+blp = Blueprint('store', __name__, description='Operations on store')
+
+@blp.route('/store/<string:store_id>')
 class Store(MethodView):
+    @blp.response(200, StoreSchema)
     def get(self, store_id):
-        try:
-            return stores[store_id]
-        except KeyError:
-            abort(404, message="Store with that id does not exist.")
+        store = StoreModel.query.get_or_404(store_id)
+        return store
 
     def delete(self, store_id):
-        try:
-            del stores[store_id]
-            return {"message": "Item deleted"}
-        except KeyError:
-            abort(404, message="Item not found.")
+        store = StoreModel.query.get_or_404(store_id)
+        db.session.delete(store)
+        db.session.commit()
+        return {"message": "Store deleted"}
 
-@blb.route('/store')
+@blp.route('/store')
 class StoreList(MethodView):
+    @blp.response(200, StoreSchema(many=True))
     def get(self):
-        return {"items": list(stores.values())}
+        return StoreModel.query.all()
 
-    def post(self):
-        store_data = request.get_json()
-        if "name" not in store_data:
-            abort(400,
-                  message="Bad request: Ensure 'name' is included in JSON payload")
+    @blp.arguments(StoreSchema)
+    @blp.response(200, StoreSchema)
+    def post(self, store_data):
+        store = StoreModel(**store_data)
+        try:
+            db.session.add(store)
+            db.session.commit()
+        except IntegrityError:
+            abort(400, message="Store with that id already exists.")
+        except SQLAlchemyError:
+            abort(500, message="Error occurred while saving store.")
 
-        for store in stores.values():
-            if (
-                    store_data["name"] == store["name"]):
-                abort(400, message=f"Store already exits")
-
-        store_id = uuid.uuid4().hex
-        store = {**store_data, "id": store_id}
-        stores[store_id] = store
         return store
