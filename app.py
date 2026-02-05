@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_smorest import Api
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
@@ -21,11 +22,11 @@ def create_app(db_url = None):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    migrate = Migrate(app, db)
+    api = Api(app)
 
     with app.app_context():
         db.create_all()
-
-    api = Api(app)
 
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)

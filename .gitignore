@@ -2,4 +2,5 @@
 note.txt
 docker-compose.debug.yml
 Dockerfile
-.flaskenv                                                                                                       
+.flaskenv
+/migrations
