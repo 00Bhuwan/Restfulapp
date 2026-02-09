@@ -23,6 +23,7 @@ class Item(MethodView):
 
     def put(self, item_id):
         item_data = request.get_json()
+        print(item_data)
         if ("price" not in item_data
             or "name" not in item_data
         ):

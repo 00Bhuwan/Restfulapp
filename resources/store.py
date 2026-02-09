@@ -24,6 +24,7 @@ class Store(MethodView):
 @blb.route('/store')
 class StoreList(MethodView):
     def get(self):
+        print(stores)
         return {"items": list(stores.values())}
 
     def post(self):
