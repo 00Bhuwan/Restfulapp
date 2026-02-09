@@ -13,7 +13,7 @@ services:
   db:
     image: postgres
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=niranbhwuan
       - POSTGRES_DB=myapp
     volumes:
       - postgres_data:/var/lib/postgresql/data
